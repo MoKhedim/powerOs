@@ -1,19 +1,22 @@
-org 0x7C00
+org 0x0
 bits 16
 
 %define ENDL 0x0D, 0x0A
 
 start:
-	jmp main
+	mov si, msg_hello
+	call puts
 
-;print function
-;Params:
-;	-ds:si points to string
-;	
+.halt:
+	cli
+	hlt
+
+
 puts:
 	;save registers we will modify
 	push si
 	push ax
+	push bx
 	
 .loop:
 	lodsb ;loads next character in al
@@ -28,31 +31,9 @@ puts:
 	
 
 .done:
+	pop bx
 	pop ax
 	pop si
 	ret
 
-main:
-	;setup data segments
-	mov ax, 0 ;cant write ds or es directly
-	mov ds, ax
-	mov es, ax
-
-	;setup stack
-	mov ss, ax
-	mov sp, 0x7C00
-
-	;PRINT MSG
-	mov si, msg_hello
-	call puts
-
-	hlt
-
-.halt:
-	jmp .halt
-
-msg_hello: db 'Hello world!', ENDL, 0
-
-
-times 510-($-$$) db 0
-dw 0AA55h
+msg_hello: db 'Hello world from Kernel!', ENDL, 0
